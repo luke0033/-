@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>学分加权平均成绩计算器</title>
+  <style>
+    :root{--yellow:#f4e84e;--yellow-soft:#fffbd3;--green:#1f9d68;--green-dark:#126843;--ink:#18352b;--muted:#6c8178;--line:#dfe9e3;--bg:#f7fbf6;--danger:#c85252;--shadow:0 18px 45px rgba(39,83,61,.10)}
+    *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:linear-gradient(135deg,#fffef0 0%,var(--bg) 45%,#eef9f2 100%);min-height:100vh}
+    .wrap{max-width:1080px;margin:0 auto;padding:42px 20px 56px}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:25px}.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--green-dark);letter-spacing:.08em;text-transform:uppercase}.dot{width:9px;height:9px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 5px rgba(244,232,78,.25)}h1{font-size:clamp(30px,5vw,50px);line-height:1.12;margin:12px 0 10px;letter-spacing:-.04em} .sub{color:var(--muted);margin:0;max-width:610px;line-height:1.7}.formula{background:var(--yellow-soft);border:1px solid #f1e98b;border-radius:16px;padding:14px 18px;font-size:14px;font-weight:700;color:#6e6816;white-space:nowrap}
+    .grid{display:grid;grid-template-columns:1.45fr .85fr;gap:22px;align-items:start}.card{background:rgba(255,255,255,.9);border:1px solid rgba(210,229,217,.8);border-radius:24px;box-shadow:var(--shadow);padding:24px}.card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.card-title h2{font-size:19px;margin:0}.count{font-size:13px;color:var(--muted);background:#f1f7f2;border-radius:99px;padding:7px 11px}
+    .table-head,.course{display:grid;grid-template-columns:minmax(130px,1fr) 130px 130px 42px;gap:12px;align-items:center}.table-head{font-size:12px;color:var(--muted);padding:0 12px 8px}.course{padding:10px 0;border-top:1px solid var(--line)}.course input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;font:inherit;color:var(--ink);background:#fcfffc;outline:none;transition:.2s}.course input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(31,157,104,.12)}.course input.invalid{border-color:var(--danger);background:#fff8f8}.remove{width:36px;height:36px;border:0;border-radius:11px;background:#f1f7f2;color:var(--muted);font-size:20px;cursor:pointer}.remove:hover{background:#ffecec;color:var(--danger)}.hint{min-height:18px;color:var(--danger);font-size:12px;margin:1px 0 0 3px;grid-column:2/4}.empty{padding:25px 12px;text-align:center;color:var(--muted);border-top:1px solid var(--line);display:none}
+    .keyboard-tip{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 5px;color:var(--muted);font-size:12px;line-height:1.5}.keyboard-tip kbd{font-family:inherit;border:1px solid #d8e5dc;background:#f5faf6;border-radius:6px;padding:2px 5px;color:var(--green-dark);font-weight:700}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:19px}.btn{border:0;border-radius:13px;padding:11px 16px;font:700 14px inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}.btn:hover{transform:translateY(-1px)}.btn-primary{background:var(--green);color:#fff;box-shadow:0 8px 18px rgba(31,157,104,.22)}.btn-secondary{background:var(--yellow);color:#4f4b0e}.btn-ghost{background:#eef6f0;color:var(--green-dark)}
+    .result-card{background:var(--green-dark);color:#fff;overflow:hidden;position:relative}.result-card:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(244,232,78,.16);right:-70px;top:-75px}.result-label{font-size:14px;opacity:.78}.score{font-size:clamp(54px,8vw,82px);font-weight:800;letter-spacing:-.06em;line-height:1;margin:13px 0 8px}.score small{font-size:24px;letter-spacing:0;opacity:.75}.message{font-size:14px;opacity:.88;min-height:22px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:25px}.stat{background:rgba(255,255,255,.1);border-radius:15px;padding:13px}.stat strong{display:block;font-size:20px;margin-top:4px}.stat span{font-size:12px;opacity:.68}.formula-note{margin-top:20px;font-size:12px;line-height:1.7;opacity:.7}.saved{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-top:16px}.saved i{width:7px;height:7px;background:var(--green);border-radius:50%}
+    @media(max-width:800px){.hero{display:block}.formula{display:inline-block;margin-top:18px}.grid{grid-template-columns:1fr}.result-card{order:-1}.table-head{display:none}.course{grid-template-columns:1fr 1fr 1fr 40px;gap:8px}.course input:first-child{grid-column:1/-1}.hint{grid-column:1/4}.card{padding:19px}}
+    @media(max-width:430px){.course{grid-template-columns:1fr 1fr 40px}.course input:nth-child(2){grid-column:1}.course input:nth-child(3){grid-column:2}.hint{grid-column:1/3}.actions .btn{flex:1 1 45%}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero"><div><div class="eyebrow"><span class="dot"></span>学业小工具</div><h1>学分加权平均成绩</h1><p class="sub">输入每门课的成绩与学分，马上看见你的加权平均成绩。课程名称可以留空，数据会自动保存在当前浏览器中。</p></div><div class="formula">Σ（成绩 × 学分） ÷ Σ学分</div></header>
+    <section class="grid">
+      <div class="card"><div class="card-title"><h2>课程明细</h2><span class="count" id="courseCount">0 门有效课程</span></div><div class="table-head"><span>课程名称（可选）</span><span>成绩 / 100</span><span>学分</span><span></span></div><div id="courses"></div><div class="empty" id="empty">还没有有效课程，添加一门课开始计算吧。</div><div class="keyboard-tip"><kbd>←</kbd><kbd>→</kbd> 切换同一行字段 <span>·</span> <kbd>↑</kbd><kbd>↓</kbd> 切换课程，末行按 <kbd>↓</kbd> 自动新增</div><div class="actions"><button class="btn btn-primary" id="addBtn">＋ 添加课程</button><button class="btn btn-secondary" id="sampleBtn">填入示例</button><button class="btn btn-ghost" id="clearBtn">清空全部</button></div><div class="saved"><i></i><span id="saveStatus">输入会自动保存</span></div></div>
+      <aside class="card result-card"><div class="result-label">你的加权平均成绩</div><div class="score" id="score">—<small>/ 100</small></div><div class="message" id="message">填写成绩和学分后，这里会显示结果</div><div class="stats"><div class="stat"><span>有效课程</span><strong id="statCourses">0</strong></div><div class="stat"><span>总学分</span><strong id="statCredits">0</strong></div><div class="stat"><span>加权总分</span><strong id="statWeighted">0</strong></div><div class="stat"><span>最高成绩</span><strong id="statBest">—</strong></div></div><div class="formula-note">每门课的成绩会按照对应学分参与计算，学分越高，对最终结果影响越大。</div></aside>
+    </section>
+  </main>
+  <script>
+    const KEY='weighted-grade-courses-v1', coursesEl=document.getElementById('courses');
+    const sample=[{name:'高等数学',score:92,credit:4},{name:'大学英语',score:88,credit:3},{name:'程序设计基础',score:95,credit:3},{name:'体育',score:86,credit:1}];
+    function addCourse(data={}){const row=document.createElement('div');row.className='course';row.innerHTML=`<input class="name" type="text" placeholder="例如：高等数学" value="${escapeHtml(data.name||'')}"><input class="score-input" type="number" min="0" max="100" step="0.1" placeholder="0–100" value="${data.score??''}"><input class="credit-input" type="number" min="0.1" step="0.1" placeholder="学分" value="${data.credit??''}"><button class="remove" title="删除课程" aria-label="删除课程">×</button><div class="hint"></div>`;row.querySelectorAll('input').forEach(i=>{i.addEventListener('input',update);i.addEventListener('keydown',handleArrowNavigation)});row.querySelector('.remove').addEventListener('click',()=>{row.remove();if(!coursesEl.children.length)addCourse();update()});coursesEl.appendChild(row);return row}
+    function handleArrowNavigation(event){
+      // Leave input-method candidate selection and modified shortcuts to the browser.
+      if(event.isComposing||event.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+      if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      const current=event.currentTarget,row=current.closest('.course');
+      const rows=[...coursesEl.querySelectorAll('.course')],fields=['name','score-input','credit-input'];
+      const fieldIndex=fields.findIndex(field=>current.classList.contains(field)),rowIndex=rows.indexOf(row);
+      if(fieldIndex<0||rowIndex<0)return;
+      // Prevent number inputs from changing their values when navigating vertically.
+      event.preventDefault();
+      let targetRow=row,targetField=fieldIndex,added=false;
+      if(event.key==='ArrowLeft')targetField=(fieldIndex+fields.length-1)%fields.length;
+      if(event.key==='ArrowRight')targetField=(fieldIndex+1)%fields.length;
+      if(event.key==='ArrowUp'&&rowIndex>0)targetRow=rows[rowIndex-1];
+      if(event.key==='ArrowDown'){
+        if(rowIndex===rows.length-1){
+          // Holding the key should not create an unlimited number of blank courses.
+          if(event.repeat)return;
+          targetRow=addCourse();added=true;
+        }else targetRow=rows[rowIndex+1];
+      }
+      targetRow.querySelector('.'+fields[targetField]).focus();
+      if(added)update();
+    }
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function update(){let valid=[],weighted=0,total=0,best=0;[...coursesEl.querySelectorAll('.course')].forEach(row=>{const s=row.querySelector('.score-input'),c=row.querySelector('.credit-input'),hint=row.querySelector('.hint');let sv=s.value===''?null:Number(s.value),cv=c.value===''?null:Number(c.value);let msg='';if(sv!==null&&(sv<0||sv>100))msg='成绩需在 0–100 之间';else if(cv!==null&&cv<=0)msg='学分必须大于 0';s.classList.toggle('invalid',!!msg&&sv!==null);c.classList.toggle('invalid',!!msg&&cv!==null);hint.textContent=msg;if(sv!==null&&cv!==null&&!msg){valid.push({sv,cv});weighted+=sv*cv;total+=cv;best=Math.max(best,sv)}});const avg=total?weighted/total:null;document.getElementById('score').innerHTML=avg===null?'—<small>/ 100</small>':avg.toFixed(2)+'<small>/ 100</small>';document.getElementById('statCourses').textContent=valid.length;document.getElementById('statCredits').textContent=total.toFixed(1).replace('.0','');document.getElementById('statWeighted').textContent=weighted.toFixed(1).replace('.0','');document.getElementById('statBest').textContent=valid.length?best.toFixed(1).replace('.0',''):'—';document.getElementById('courseCount').textContent=valid.length+' 门有效课程';document.getElementById('empty').style.display=valid.length?'none':'block';document.getElementById('message').textContent=avg===null?'填写成绩和学分后，这里会显示结果':avg>=90?'表现优秀，继续保持这份稳定！':avg>=80?'当前成绩表现良好，再接再厉！':avg>=60?'已达到及格线，继续加油！':'还有提升空间，稳步积累就好。';localStorage.setItem(KEY,JSON.stringify([...coursesEl.querySelectorAll('.course')].map(r=>({name:r.querySelector('.name').value,score:r.querySelector('.score-input').value,credit:r.querySelector('.credit-input').value}))));document.getElementById('saveStatus').textContent='已自动保存 · '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}
+    document.getElementById('addBtn').onclick=()=>{addCourse();update()};document.getElementById('sampleBtn').onclick=()=>{coursesEl.innerHTML='';sample.forEach(addCourse);update()};document.getElementById('clearBtn').onclick=()=>{coursesEl.innerHTML='';addCourse();update()};
+    try{const saved=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(saved)&&saved.length)saved.forEach(addCourse);else addCourse()}catch{addCourse()}update();
+  </script>
+</body>
+</html>
